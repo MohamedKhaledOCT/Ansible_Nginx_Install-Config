@@ -1,0 +1,15 @@
+server {
+    listen 80;
+    server_name {{ server_name }};
+    location / {
+        root {{ document_root }};
+        index index.html index.htm;
+        # Deny access by default
+        deny all;
+        # Allow access only from specified IPs
+        {% for ip in allowed_ips %}
+        allow {{ ip }};
+        {% endfor %}
+    }
+}
+

@@ -1,0 +1,39 @@
+---
+- name: Deploy Nginx with Whitelist
+  hosts: web_servers
+  become: yes
+  vars:
+    allowed_ips:
+      - 192.168.1.50
+      - 192.168.1.60
+      - 192.168.1.70
+    server_name: mynginx.local
+    document_root: /var/www/html
+  tasks:
+    - name: Install Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Deploy Nginx configuration template
+      ansible.builtin.template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/sites-available/default
+        mode: '0644'
+        owner: root
+        group: root
+      notify: Reload Nginx
+
+    - name: Ensure Nginx is started and enabled
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Reload Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded
+
